@@ -1,57 +1,49 @@
-import { Client as Appwrite, Databases, Account } from 'appwrite';
-import { Server } from '../utils/config';
+import { sdk } from "./appwrite";
 
 let api = {
-  sdk: null,
+	createAccount: (email, password, name) => {
+		return sdk.account.create("unique()", email, password, name);
+	},
 
-  provider: () => {
-    if (api.sdk) {
-      return api.sdk;
-    }
-    let appwrite = new Appwrite();
-    appwrite.setEndpoint(Server.endpoint).setProject(Server.project);
-    const account = new Account(appwrite);
-    const database = new Databases(appwrite, Server.database);
+	getAccount: () => {
+		return sdk.account.get();
+	},
 
-    api.sdk = { database, account };
-    return appwrite;
-  },
+	createSession: (email, password) => {
+		return sdk.account.createEmailSession(email, password);
+	},
 
-  createAccount: (email, password, name) => {
-    return api.provider().account.create('unique()', email, password, name);
-  },
+	deleteCurrentSession: () => {
+		return sdk.account.deleteSession("current");
+	},
 
-  getAccount: () => {
-    return api.provider().account.get();
-  },
+	createDocument: (collectionId, data, read, write) => {
+		return sdk.database.createDocument(
+			collectionId,
+			"unique()",
+			data,
+			read,
+			write
+		);
+	},
 
-  createSession: (email, password) => {
-    return api.provider().account.createEmailSession(email, password);
-  },
+	listDocuments: (collectionId) => {
+		return sdk.database.listDocuments(collectionId);
+	},
 
-  deleteCurrentSession: () => {
-    return api.provider().account.deleteSession('current');
-  },
+	updateDocument: (collectionId, documentId, data, read, write) => {
+		return sdk.database.updateDocument(
+			collectionId,
+			documentId,
+			data,
+			read,
+			write
+		);
+	},
 
-  createDocument: (collectionId, data, read, write) => {
-    return api
-      .provider()
-      .database.createDocument(collectionId, 'unique()', data, read, write);
-  },
-
-  listDocuments: (collectionId) => {
-    return api.provider().database.listDocuments(collectionId);
-  },
-
-  updateDocument: (collectionId, documentId, data, read, write) => {
-    return api
-      .provider()
-      .database.updateDocument(collectionId, documentId, data, read, write);
-  },
-
-  deleteDocument: (collectionId, documentId) => {
-    return api.provider().database.deleteDocument(collectionId, documentId);
-  },
+	deleteDocument: (collectionId, documentId) => {
+		return sdk.database.deleteDocument(collectionId, documentId);
+	},
 };
 
 export default api;
